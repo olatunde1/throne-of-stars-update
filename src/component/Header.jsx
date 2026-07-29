@@ -64,8 +64,18 @@ export default function Header({ query, onQueryChange, cartCount, onCartClick, i
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="Search groceries..."
               type="search"
-              className="w-full min-w-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 sm:text-sm"
+              className="search-input w-full min-w-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 sm:text-sm"
             />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={() => onQueryChange("")}
+                aria-label="Clear search"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 
