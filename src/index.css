@@ -22,6 +22,12 @@ body {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 @keyframes marquee {
   from {
     transform: translateX(0);
