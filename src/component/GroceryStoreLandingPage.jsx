@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Flame, Sparkles } from "lucide-react";
 import useProducts from "./ProductApi";
 import useLockBodyScroll from "../hooks/useLockBodyScroll";
 import Header from "./Header";
@@ -8,6 +8,8 @@ import MobileDrawer from "./MobileDrawer";
 import Hero from "./Hero";
 import FeatureCards from "./FeatureCards";
 import ProductCard from "./ProductCard";
+import ProductCarousel from "./ProductCarousel";
+import Pagination from "./Pagination";
 import Testimonials from "./Testimonials";
 import FAQAccordion from "./FAQAccordion";
 import CTASection from "./CTASection";
@@ -16,12 +18,14 @@ import CartDrawer from "./CartDrawer";
 import FloatingWhatsApp from "./FloatingWhatsApp";
 
 const CATEGORIES = ["All", "Meat", "Fish", "Vegetables", "Groceries", "Rice", "Leaves"];
+const PAGE_SIZE = 12;
 
 export default function GroceryStoreLandingPage() {
   const { products, loading, error } = useProducts();
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [page, setPage] = useState(1);
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,6 +40,19 @@ export default function GroceryStoreLandingPage() {
       return matchesCategory && matchesQuery;
     });
   }, [products, query, category]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [category, query]);
+
+  const pageCount = Math.max(1, Math.ceil((filtered?.length ?? 0) / PAGE_SIZE));
+  const pagedItems = useMemo(
+    () => filtered?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filtered, page]
+  );
+
+  const hotSelling = useMemo(() => (products ?? []).slice(0, 10), [products]);
+  const newProducts = useMemo(() => (products ?? []).slice(-10).reverse(), [products]);
 
   function addToCart(product) {
     const key = product.id ?? product.name;
@@ -72,7 +89,12 @@ export default function GroceryStoreLandingPage() {
   const cartTotal = cart.reduce((s, it) => s + it.price * it.qty, 0).toFixed(2);
 
   function scrollToProducts() {
-    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function goToPage(nextPage) {
+    setPage(nextPage);
+    scrollToProducts();
   }
 
   return (
@@ -111,6 +133,29 @@ export default function GroceryStoreLandingPage() {
         <Hero onShopClick={scrollToProducts} />
         <FeatureCards />
 
+        {!loading && !error && (
+          <>
+            <ProductCarousel
+              title="Hot Selling Products"
+              subtitle="Customer favourites, restocked often"
+              icon={Flame}
+              iconClassName="bg-orange-50 text-orange-500"
+              badge="Hot"
+              items={hotSelling}
+              onAdd={addToCart}
+            />
+            <ProductCarousel
+              title="All New Products"
+              subtitle="Freshly added to the catalogue"
+              icon={Sparkles}
+              iconClassName="bg-purple-50 text-brand-accent"
+              badge="New"
+              items={newProducts}
+              onAdd={addToCart}
+            />
+          </>
+        )}
+
         <section id="products" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
             <aside className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 sm:p-5 lg:sticky lg:top-24 lg:h-fit">
@@ -148,15 +193,17 @@ export default function GroceryStoreLandingPage() {
               ) : (
                 <>
                   <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                    {filtered?.map((item) => (
+                    {pagedItems?.map((item) => (
                       <ProductCard key={item.id ?? item.name} item={item} onAdd={addToCart} />
                     ))}
                   </motion.div>
 
-                  {filtered?.length === 0 && (
+                  {filtered?.length === 0 ? (
                     <div className="mt-8 rounded-xl bg-white p-6 text-center text-sm text-gray-500 shadow-sm ring-1 ring-gray-100">
                       No matching products found.
                     </div>
+                  ) : (
+                    <Pagination page={page} pageCount={pageCount} onPageChange={goToPage} />
                   )}
                 </>
               )}

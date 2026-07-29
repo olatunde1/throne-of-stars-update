@@ -29,7 +29,7 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="flex flex-col gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100"
+              className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
             >
               <div className="flex gap-0.5 text-brand-gold" aria-hidden="true">
                 {Array.from({ length: t.rating }).map((_, idx) => (
