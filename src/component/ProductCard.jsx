@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 
-function ProductCard({ item, onAdd }) {
+function ProductCard({ item, onAdd, badge }) {
   return (
     <motion.article
       layout
@@ -10,7 +10,12 @@ function ProductCard({ item, onAdd }) {
       transition={{ duration: 0.25 }}
       className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow md:hover:shadow-lg"
     >
-      <div className="aspect-square w-full overflow-hidden bg-gray-100">
+      <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
+        {badge && (
+          <span className="absolute left-2 top-2 z-10 rounded-full bg-brand-dark/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+            {badge}
+          </span>
+        )}
         <img
           src={item.image || "https://via.placeholder.com/300"}
           alt={item.name}

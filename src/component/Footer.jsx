@@ -1,3 +1,4 @@
+import { Facebook, Instagram, MapPin, Twitter, Youtube } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
 
 const LINKS = [
@@ -5,6 +6,13 @@ const LINKS = [
   { label: "Shop", href: "#products" },
   { label: "Reviews", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
+];
+
+const SOCIALS = [
+  { label: "Facebook", href: "#", icon: Facebook },
+  { label: "Instagram", href: "#", icon: Instagram },
+  { label: "Twitter", href: "#", icon: Twitter },
+  { label: "YouTube", href: "#", icon: Youtube },
 ];
 
 export default function Footer() {
@@ -38,8 +46,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Contact</h3>
-            <ul className="mt-3 space-y-2 text-sm text-gray-500">
+            <h3 className="text-sm font-semibold text-gray-900">Got Questions ? Contact Us</h3>
+            <ul className="mt-3 space-y-3 text-sm text-gray-500">
               <li>
                 <a
                   href="https://wa.me/447886280225"
@@ -50,7 +58,28 @@ export default function Footer() {
                   WhatsApp: +44 7886 280225
                 </a>
               </li>
+              <li className="flex items-start gap-2">
+                <MapPin size={16} className="mt-0.5 shrink-0 text-gray-400" aria-hidden="true" />
+                <span>
+                  Unit 1, 133 Brockhurst Road, Gosport.
+                  <br />
+                  Postcode: PO12 3AX
+                </span>
+              </li>
             </ul>
+
+            <div className="mt-4 flex items-center gap-2">
+              {SOCIALS.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition hover:bg-brand-dark hover:text-white"
+                >
+                  <Icon size={18} />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
