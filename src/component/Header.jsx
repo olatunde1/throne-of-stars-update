@@ -64,7 +64,7 @@ export default function Header({ query, onQueryChange, cartCount, onCartClick, i
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder="Search groceries..."
               type="search"
-              className="w-full min-w-0 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
+              className="w-full min-w-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 sm:text-sm"
             />
           </div>
         </div>
