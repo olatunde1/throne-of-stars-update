@@ -12,7 +12,7 @@ const SOCIALS = [
   { label: "Facebook", href: "#", icon: Facebook },
   { label: "Instagram", href: "#", icon: Instagram },
   { label: "Twitter", href: "#", icon: Twitter },
-  { label: "YouTube", href: "#", icon: Youtube },
+  // { label: "YouTube", href: "#", icon: Youtube },
 ];
 
 export default function Footer() {
