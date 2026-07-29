@@ -6,6 +6,7 @@ import useLockBodyScroll from "../hooks/useLockBodyScroll";
 import Header from "./Header";
 import MobileDrawer from "./MobileDrawer";
 import Hero from "./Hero";
+import DeliveryMarquee from "./DeliveryMarquee";
 import FeatureCards from "./FeatureCards";
 import ProductCard from "./ProductCard";
 import ProductCarousel from "./ProductCarousel";
@@ -131,6 +132,7 @@ export default function GroceryStoreLandingPage() {
 
       <main>
         <Hero onShopClick={scrollToProducts} />
+        <DeliveryMarquee />
         <FeatureCards />
 
         {!loading && !error && (

@@ -20,7 +20,6 @@ export default function Testimonials() {
           <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">What our customers say</h2>
           <p className="mt-2 text-sm text-gray-600 sm:text-base">Real feedback from the Throne of Stars community.</p>
         </motion.div>
-
         <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-6">
           {TESTIMONIALS.map((t, i) => (
             <motion.figure
