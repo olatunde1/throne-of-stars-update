@@ -1,14 +1,30 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { ShoppingCart } from "lucide-react";
 
-function ProductCard({ item, onAdd, badge }) {
+function ProductCard({ item, onAdd, onView, badge }) {
   return (
     <motion.article
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow md:hover:shadow-lg"
+      onClick={() => onView?.(item)}
+      role={onView ? "button" : undefined}
+      tabIndex={onView ? 0 : undefined}
+      onKeyDown={
+        onView
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onView(item);
+              }
+            }
+          : undefined
+      }
+      className={`flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow md:hover:shadow-lg ${
+        onView ? "cursor-pointer" : ""
+      }`}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
         {badge && (
@@ -31,11 +47,14 @@ function ProductCard({ item, onAdd, badge }) {
           <motion.button
             type="button"
             whileTap={{ scale: 0.92 }}
-            onClick={() => onAdd(item)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd(item);
+            }}
             aria-label={`Add ${item.name} to cart`}
-            className="min-h-11 rounded-lg bg-brand-dark px-4 text-sm font-semibold text-white transition md:hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-brand-dark px-3 text-white transition md:hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
-            Add
+            <ShoppingCart size={18} aria-hidden="true" />
           </motion.button>
         </div>
       </div>

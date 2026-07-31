@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import ProductCard from "./ProductCard";
 
-export default function ProductCarousel({ title, subtitle, icon: Icon, iconClassName, badge, items, onAdd }) {
+export default function ProductCarousel({ title, subtitle, icon: Icon, iconClassName, badge, items, onAdd, onView }) {
   if (!items || items.length === 0) return null;
 
   return (
@@ -26,7 +26,7 @@ export default function ProductCarousel({ title, subtitle, icon: Icon, iconClass
       <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
         {items.map((item) => (
           <div key={item.id ?? item.name} className="w-40 shrink-0 snap-start sm:w-52">
-            <ProductCard item={item} onAdd={onAdd} badge={badge} />
+            <ProductCard item={item} onAdd={onAdd} onView={onView} badge={badge} />
           </div>
         ))}
       </div>
