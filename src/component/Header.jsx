@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
 
@@ -10,7 +11,50 @@ const NAV_LINKS = [
   { label: "Contact", href: "#footer" },
 ];
 
-export default function Header({ query, onQueryChange, cartCount, onCartClick, isMenuOpen, onMenuToggle }) {
+function isInStock(item) {
+  return String(item.available ?? "TRUE").toUpperCase() !== "FALSE";
+}
+
+function qtyInCart(item, cart) {
+  const key = item.id ?? item.name;
+  return cart.find((c) => String(c.id) === String(key))?.qty ?? 0;
+}
+
+export default function Header({
+  query,
+  onQueryChange,
+  cartCount,
+  onCartClick,
+  isMenuOpen,
+  onMenuToggle,
+  searchResults = [],
+  cart = [],
+  onAddResult,
+  onUpdateResultQty,
+  onSelectResult,
+}) {
+  const [isFocused, setIsFocused] = useState(false);
+  const searchBoxRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const showDropdown = isFocused && query.trim().length > 0;
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+        setIsFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleSelect(item) {
+    setIsFocused(false);
+    inputRef.current?.blur();
+    onSelectResult?.(item);
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-brand-dark shadow-md">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 md:flex-nowrap md:gap-6">
@@ -52,24 +96,39 @@ export default function Header({ query, onQueryChange, cartCount, onCartClick, i
           ))}
         </nav>
 
-        <div className="order-last w-full md:order-none md:w-auto md:flex-1 md:max-w-sm">
+        <div
+          ref={searchBoxRef}
+          className="relative order-last w-full md:order-none md:w-auto md:flex-1 md:max-w-sm"
+        >
           <label htmlFor="site-search" className="sr-only">
             Search groceries
           </label>
           <div className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2.5 shadow-sm ring-1 ring-inset ring-white/10 focus-within:ring-2 focus-within:ring-brand-gold">
             <Search size={18} className="shrink-0 text-gray-500" />
             <input
+              ref={inputRef}
               id="site-search"
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setIsFocused(false);
+              }}
               placeholder="Search groceries..."
               type="search"
+              autoComplete="off"
+              role="combobox"
+              aria-expanded={showDropdown}
+              aria-controls="search-results-listbox"
               className="search-input w-full min-w-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 sm:text-sm"
             />
             {query.length > 0 && (
               <button
                 type="button"
-                onClick={() => onQueryChange("")}
+                onClick={() => {
+                  onQueryChange("");
+                  inputRef.current?.focus();
+                }}
                 aria-label="Clear search"
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
               >
@@ -77,6 +136,102 @@ export default function Header({ query, onQueryChange, cartCount, onCartClick, i
               </button>
             )}
           </div>
+
+          <AnimatePresence>
+            {showDropdown && (
+              <motion.div
+                id="search-results-listbox"
+                role="listbox"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute inset-x-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-xl bg-white p-2 shadow-2xl ring-1 ring-gray-100"
+              >
+                {searchResults.length === 0 ? (
+                  <p className="px-3 py-4 text-center text-sm text-gray-500">
+                    No products match &ldquo;{query}&rdquo;.
+                  </p>
+                ) : (
+                  searchResults.map((item) => {
+                    const qty = qtyInCart(item, cart);
+                    const inStock = isInStock(item);
+                    const key = item.id ?? item.name;
+
+                    return (
+                      <div
+                        key={key}
+                        role="option"
+                        aria-selected="false"
+                        tabIndex={0}
+                        onClick={() => handleSelect(item)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSelect(item);
+                        }}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition hover:bg-gray-50"
+                      >
+                        <img
+                          src={item.image || "https://via.placeholder.com/60"}
+                          alt={item.name}
+                          className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>
+                          <div className="mt-0.5 flex items-center gap-2">
+                            <span className="text-xs font-semibold text-brand-dark">£{item.price}</span>
+                            <span
+                              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                                inStock ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+                              }`}
+                            >
+                              {inStock ? "In Stock" : "Out of Stock"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {!inStock ? null : qty > 0 ? (
+                          <div
+                            className="flex shrink-0 items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => onUpdateResultQty?.(key, qty - 1)}
+                              aria-label={`Decrease quantity of ${item.name}`}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            >
+                              −
+                            </button>
+                            <span className="w-5 text-center text-sm font-medium">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => onAddResult?.(item)}
+                              aria-label={`Increase quantity of ${item.name}`}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            >
+                              +
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onAddResult?.(item);
+                            }}
+                            aria-label={`Add ${item.name} to cart`}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white transition hover:bg-brand"
+                          >
+                            <ShoppingCart size={16} aria-hidden="true" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <button

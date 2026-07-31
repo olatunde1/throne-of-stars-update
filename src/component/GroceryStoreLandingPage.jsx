@@ -16,6 +16,7 @@ import FAQAccordion from "./FAQAccordion";
 import CTASection from "./CTASection";
 import Footer from "./Footer";
 import CartDrawer from "./CartDrawer";
+import ProductDetailModal from "./ProductDetailModal";
 import FloatingWhatsApp from "./FloatingWhatsApp";
 
 const CATEGORIES = ["All", "Meat", "Fish", "Vegetables", "Groceries", "Rice", "Leaves"];
@@ -31,8 +32,10 @@ export default function GroceryStoreLandingPage() {
   const [showCart, setShowCart] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [addedMsg, setAddedMsg] = useState(null);
+  const [viewProduct, setViewProduct] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
-  useLockBodyScroll(showCart || isMenuOpen);
+  useLockBodyScroll(showCart || isMenuOpen || showDetail);
 
   const filtered = useMemo(() => {
     return products?.filter((p) => {
@@ -55,29 +58,47 @@ export default function GroceryStoreLandingPage() {
   const hotSelling = useMemo(() => (products ?? []).slice(0, 10), [products]);
   const newProducts = useMemo(() => (products ?? []).slice(-10).reverse(), [products]);
 
-  function addToCart(product) {
-    const key = product.id ?? product.name;
+  const searchResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return (products ?? []).filter((p) => p.name.toLowerCase().includes(q)).slice(0, 6);
+  }, [products, query]);
+
+  function addToCart(product, options = {}) {
+    const { qty = 1, price, variantLabel = null } = options;
+    const key = `${product.id ?? product.name}${variantLabel ? `::${variantLabel}` : ""}`;
 
     setCart((prev) => {
       const existing = prev.find((c) => String(c.id) === String(key));
       if (existing) {
-        return prev.map((c) => (String(c.id) === String(key) ? { ...c, qty: c.qty + 1 } : c));
+        return prev.map((c) => (String(c.id) === String(key) ? { ...c, qty: c.qty + qty } : c));
       }
       return [
         ...prev,
         {
           id: key,
           name: product.name ?? product.title ?? "Unnamed item",
-          price: Number(product.price) || 0,
-          qty: 1,
+          price: price != null ? Number(price) : Number(product.price) || 0,
+          qty,
           image: product.image ?? null,
           category: product.category ?? null,
+          variantLabel,
         },
       ];
     });
 
     setAddedMsg(product.name ?? product.title ?? "Item");
     setTimeout(() => setAddedMsg(null), 2000);
+  }
+
+  function openProductDetail(product) {
+    setViewProduct(product);
+    setShowDetail(true);
+  }
+
+  function handleAddFromDetail(product, options) {
+    addToCart(product, options);
+    setShowDetail(false);
   }
 
   function updateQty(id, qty) {
@@ -91,6 +112,12 @@ export default function GroceryStoreLandingPage() {
 
   function scrollToProducts() {
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function selectSearchResult(product) {
+    setCategory("All");
+    setQuery(product.name ?? product.title ?? "");
+    scrollToProducts();
   }
 
   function goToPage(nextPage) {
@@ -120,6 +147,11 @@ export default function GroceryStoreLandingPage() {
         onCartClick={() => setShowCart(true)}
         isMenuOpen={isMenuOpen}
         onMenuToggle={() => setIsMenuOpen((o) => !o)}
+        searchResults={searchResults}
+        cart={cart}
+        onAddResult={addToCart}
+        onUpdateResultQty={updateQty}
+        onSelectResult={selectSearchResult}
       />
 
       <MobileDrawer
@@ -145,6 +177,7 @@ export default function GroceryStoreLandingPage() {
               badge="Hot"
               items={hotSelling}
               onAdd={addToCart}
+              onView={openProductDetail}
             />
             <ProductCarousel
               title="All New Products"
@@ -154,6 +187,7 @@ export default function GroceryStoreLandingPage() {
               badge="New"
               items={newProducts}
               onAdd={addToCart}
+              onView={openProductDetail}
             />
           </>
         )}
@@ -196,7 +230,12 @@ export default function GroceryStoreLandingPage() {
                 <>
                   <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
                     {pagedItems?.map((item) => (
-                      <ProductCard key={item.id ?? item.name} item={item} onAdd={addToCart} />
+                      <ProductCard
+                        key={item.id ?? item.name}
+                        item={item}
+                        onAdd={addToCart}
+                        onView={openProductDetail}
+                      />
                     ))}
                   </motion.div>
 
@@ -221,6 +260,13 @@ export default function GroceryStoreLandingPage() {
       <Footer />
 
       <CartDrawer open={showCart} onClose={() => setShowCart(false)} cart={cart} onUpdateQty={updateQty} total={cartTotal} />
+
+      <ProductDetailModal
+        item={viewProduct}
+        open={showDetail}
+        onClose={() => setShowDetail(false)}
+        onAdd={handleAddFromDetail}
+      />
 
       <FloatingWhatsApp />
     </div>
