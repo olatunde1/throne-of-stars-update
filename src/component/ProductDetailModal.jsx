@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, X } from "lucide-react";
 import { computeWeightVariants } from "../utils/weightVariants";
+import ProductThumbnail from "./ProductThumbnail";
 
 export default function ProductDetailModal({ item, open, onClose, onAdd }) {
   const variants = item ? computeWeightVariants(item) : null;
@@ -63,10 +64,11 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
 
             <div className="grid gap-6 p-5 sm:p-6 md:grid-cols-2">
               <div className="aspect-square w-full overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={item.image || "https://via.placeholder.com/500"}
-                  alt={item.name}
-                  className="h-full w-full object-cover"
+                <ProductThumbnail
+                  item={item}
+                  className="h-full w-full"
+                  iconClassName="h-1/4 w-1/4"
+                  nameClassName="text-base sm:text-lg"
                 />
               </div>
 

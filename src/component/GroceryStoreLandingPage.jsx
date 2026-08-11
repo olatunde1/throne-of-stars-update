@@ -18,8 +18,8 @@ import Footer from "./Footer";
 import CartDrawer from "./CartDrawer";
 import ProductDetailModal from "./ProductDetailModal";
 import FloatingWhatsApp from "./FloatingWhatsApp";
+import { CATEGORIES } from "../utils/categories";
 
-const CATEGORIES = ["All", "Meat", "Fish", "Vegetables", "Groceries", "Rice", "Leaves"];
 const PAGE_SIZE = 12;
 
 export default function GroceryStoreLandingPage() {
@@ -80,7 +80,6 @@ export default function GroceryStoreLandingPage() {
           name: product.name ?? product.title ?? "Unnamed item",
           price: price != null ? Number(price) : Number(product.price) || 0,
           qty,
-          image: product.image ?? null,
           category: product.category ?? null,
           variantLabel,
         },

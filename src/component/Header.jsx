@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
+import ProductThumbnail from "./ProductThumbnail";
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -170,10 +171,11 @@ export default function Header({
                         }}
                         className="flex cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition hover:bg-gray-50"
                       >
-                        <img
-                          src={item.image || "https://via.placeholder.com/60"}
-                          alt={item.name}
-                          className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                        <ProductThumbnail
+                          item={item}
+                          className="h-12 w-12 shrink-0 rounded-lg"
+                          iconClassName="h-1/3 w-1/3"
+                          nameClassName="hidden"
                         />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>

@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
+import ProductThumbnail from "./ProductThumbnail";
 
 function ProductCard({ item, onAdd, onView, badge }) {
   return (
@@ -32,12 +33,7 @@ function ProductCard({ item, onAdd, onView, badge }) {
             {badge}
           </span>
         )}
-        <img
-          src={item.image || "https://via.placeholder.com/300"}
-          alt={item.name}
-          loading="lazy"
-          className="h-full w-full object-cover"
-        />
+        <ProductThumbnail item={item} className="h-full w-full" />
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
         <h3 className="line-clamp-1 text-sm font-semibold text-gray-900 sm:text-base">{item.name}</h3>
