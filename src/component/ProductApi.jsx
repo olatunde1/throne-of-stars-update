@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { resolveCategory } from "../utils/categories";
 
 export default function useProducts() {
   const [products, setProducts] = useState([]);
@@ -12,7 +13,7 @@ export default function useProducts() {
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
-        setProducts(data);
+        setProducts(data.map((item) => ({ ...item, category: resolveCategory(item) })));
         setLoading(false);
       })
       .catch((err) => {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import ProductThumbnail from "./ProductThumbnail";
 
 const WHATSAPP_NUMBER = "447886280225";
 
@@ -69,10 +70,11 @@ export default function CartDrawer({ open, onClose, cart, onUpdateQty, total }) 
                 <div className="space-y-3">
                   {cart.map((c) => (
                     <div key={c.id} className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                      <img
-                        src={c.image || "https://via.placeholder.com/60"}
-                        alt={c.name}
-                        className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                      <ProductThumbnail
+                        item={c}
+                        className="h-14 w-14 shrink-0 rounded-lg"
+                        iconClassName="h-1/3 w-1/3"
+                        nameClassName="hidden"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-gray-900">{lineName(c)}</p>
@@ -171,10 +173,11 @@ export default function CartDrawer({ open, onClose, cart, onUpdateQty, total }) 
               <div className="space-y-3">
                 {cart.map((c) => (
                   <div key={c.id} className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-                    <img
-                      src={c.image || "https://via.placeholder.com/60"}
-                      alt={c.name}
-                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    <ProductThumbnail
+                      item={c}
+                      className="h-14 w-14 shrink-0 rounded-lg"
+                      iconClassName="h-1/3 w-1/3"
+                      nameClassName="hidden"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-gray-900">{lineName(c)}</p>

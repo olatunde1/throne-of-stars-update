@@ -3,7 +3,16 @@
     "allow": [
       "Bash(npm run *)",
       "Bash(npm ls *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(curl -s \"https://sheet.best/api/sheets/dddaa9f6-81c7-4786-9db7-c56e375a048d\" -o \"C:\\\\Users\\\\Idowu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Idowu-Desktop-throne-of-stars-main\\\\48f59f5e-68e2-4cb2-9b99-60b0273c1223\\\\scratchpad\\\\products.json\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -s \"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=Ofada%20rice&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\); console.log\\(JSON.stringify\\(j.query?.pages ? Object.values\\(j.query.pages\\).map\\(p=>\\({title:p.title, url:p.imageinfo?.[0]?.thumburl}\\)\\) : j, null, 2\\)\\)}\\)\")",
+      "mcp__796ad767-9478-4881-851e-0ae687ac4f94__generate_image",
+      "mcp__796ad767-9478-4881-851e-0ae687ac4f94__get_image_generation_status",
+      "Bash(curl -s -o 'C:\\\\Users\\\\Idowu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Idowu-Desktop-throne-of-stars-main\\\\48f59f5e-68e2-4cb2-9b99-60b0273c1223\\\\scratchpad/test1_gizzard.png' https://cdn.gamma.app/gwjfy5r4f549bh8/design-anything/B8A99LO2Q445LS4aCjUKN/pUKT0i4TfSiLn2fGMslZC.png)",
+      "Bash(curl -s -o 'C:\\\\Users\\\\Idowu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Idowu-Desktop-throne-of-stars-main\\\\48f59f5e-68e2-4cb2-9b99-60b0273c1223\\\\scratchpad/test2_tomatoes.png' https://cdn.gamma.app/gwjfy5r4f549bh8/design-anything/kk5HPbPfLpEBUvftOk2hI/JZuPHPLDYP4kHkWt6l-AT.png)",
+      "Bash(curl -s -o 'C:\\\\Users\\\\Idowu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Idowu-Desktop-throne-of-stars-main\\\\48f59f5e-68e2-4cb2-9b99-60b0273c1223\\\\scratchpad/test3_milo.png' https://cdn.gamma.app/gwjfy5r4f549bh8/design-anything/ysY9GDPCMA55GlXljIhEY/XSDXYxyB568qjhwWuO5hF.png)"
     ]
   }
 }
