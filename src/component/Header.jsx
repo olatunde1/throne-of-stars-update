@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
 import ProductThumbnail from "./ProductThumbnail";
+import { getDefaultVariant, getDisplayPrice, isItemInStock } from "../utils/weightVariants";
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -12,13 +13,16 @@ const NAV_LINKS = [
   { label: "Contact", href: "#footer" },
 ];
 
-function isInStock(item) {
-  return String(item.available ?? "TRUE").toUpperCase() !== "FALSE";
+// Mirrors the cart id GroceryStoreLandingPage.addToCart builds, so lookups
+// here find the right line even once items carry a size variant.
+function cartKey(item, variantLabel) {
+  const base = item.id ?? item.name;
+  return variantLabel ? `${base}::${variantLabel}` : String(base);
 }
 
-function qtyInCart(item, cart) {
-  const key = item.id ?? item.name;
-  return cart.find((c) => String(c.id) === String(key))?.qty ?? 0;
+function qtyInCart(item, cart, variantLabel) {
+  const key = cartKey(item, variantLabel);
+  return cart.find((c) => String(c.id) === key)?.qty ?? 0;
 }
 
 export default function Header({
@@ -155,9 +159,14 @@ export default function Header({
                   </p>
                 ) : (
                   searchResults.map((item) => {
-                    const qty = qtyInCart(item, cart);
-                    const inStock = isInStock(item);
-                    const key = item.id ?? item.name;
+                    const defaultVariant = getDefaultVariant(item);
+                    const addOptions = defaultVariant
+                      ? { price: defaultVariant.price, variantLabel: defaultVariant.label }
+                      : undefined;
+                    const key = cartKey(item, defaultVariant?.label ?? null);
+                    const qty = qtyInCart(item, cart, defaultVariant?.label ?? null);
+                    const inStock = isItemInStock(item);
+                    const { price, fromMultiple } = getDisplayPrice(item);
 
                     return (
                       <div
@@ -180,7 +189,10 @@ export default function Header({
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>
                           <div className="mt-0.5 flex items-center gap-2">
-                            <span className="text-xs font-semibold text-brand-dark">£{item.price}</span>
+                            <span className="text-xs font-semibold text-brand-dark">
+                              {fromMultiple && <span className="mr-0.5 font-normal text-gray-400">From</span>}
+                              £{price.toFixed(2)}
+                            </span>
                             <span
                               className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
                                 inStock ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
@@ -207,7 +219,7 @@ export default function Header({
                             <span className="w-5 text-center text-sm font-medium">{qty}</span>
                             <button
                               type="button"
-                              onClick={() => onAddResult?.(item)}
+                              onClick={() => onAddResult?.(item, addOptions)}
                               aria-label={`Increase quantity of ${item.name}`}
                               className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
                             >
@@ -219,7 +231,7 @@ export default function Header({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onAddResult?.(item);
+                              onAddResult?.(item, addOptions);
                             }}
                             aria-label={`Add ${item.name} to cart`}
                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white transition hover:bg-brand"

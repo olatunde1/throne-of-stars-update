@@ -1,10 +1,23 @@
+import { useState } from "react";
 import { getCategoryStyle } from "../utils/categoryStyles";
 
-// Guaranteed-accurate stand-in for product photography: a category-tinted
-// card with an icon and the product's own name, so it can never mismatch
-// what's actually being sold (unlike keyword-matched stock photos).
+// Renders the product's real photo from the sheet's `image` field. Falls
+// back to a category-tinted icon card if no image is set or it fails to
+// load, so a broken/missing URL never shows a blank box.
 export default function ProductThumbnail({ item, className = "", iconClassName = "", nameClassName = "" }) {
   const { icon: Icon, bg, text, ring } = getCategoryStyle(item?.category);
+  const [failed, setFailed] = useState(false);
+
+  if (item?.image && !failed) {
+    return (
+      <img
+        src={item.image}
+        alt={item?.name || "Product"}
+        className={`object-cover ${className}`}
+        onError={() => setFailed(true)}
+      />
+    );
+  }
 
   return (
     <div className={`flex flex-col items-center justify-center gap-2 ${bg} ring-1 ring-inset ${ring} ${className}`}>

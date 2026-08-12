@@ -1,29 +1,30 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, X } from "lucide-react";
-import { computeWeightVariants } from "../utils/weightVariants";
+import { computeWeightVariants, getDefaultVariant, isItemInStock } from "../utils/weightVariants";
 import ProductThumbnail from "./ProductThumbnail";
 
 export default function ProductDetailModal({ item, open, onClose, onAdd }) {
   const variants = item ? computeWeightVariants(item) : null;
-  const defaultVariant = variants?.find((v) => v.isDefault) ?? variants?.[0] ?? null;
+  const defaultVariant = item ? getDefaultVariant(item) : null;
 
-  const [selectedKg, setSelectedKg] = useState(defaultVariant?.kg ?? null);
+  const [selectedLabel, setSelectedLabel] = useState(defaultVariant?.label ?? null);
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
-    setSelectedKg(defaultVariant?.kg ?? null);
+    setSelectedLabel(defaultVariant?.label ?? null);
     setQty(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.id, item?.name]);
 
-  const inStock = item ? String(item.available ?? "TRUE").toUpperCase() !== "FALSE" : false;
-  const selectedVariant = variants?.find((v) => v.kg === selectedKg) ?? null;
+  const inStock = item ? isItemInStock(item) : false;
+  const selectedVariant = variants?.find((v) => v.label === selectedLabel) ?? null;
+  const canAdd = selectedVariant ? selectedVariant.available : inStock;
   const unitPrice = selectedVariant ? selectedVariant.price : Number(item?.price) || 0;
   const totalPrice = (unitPrice * qty).toFixed(2);
 
   function handleAdd() {
-    if (!item || !inStock) return;
+    if (!item || !canAdd) return;
     onAdd(item, {
       qty,
       price: unitPrice,
@@ -89,15 +90,18 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
 
                 {variants && (
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-gray-900">Select by weight:</p>
+                    <p className="mb-2 text-sm font-semibold text-gray-900">Select size:</p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {variants.map((v) => (
                         <button
-                          key={v.kg}
+                          key={v.label}
                           type="button"
-                          onClick={() => setSelectedKg(v.kg)}
+                          disabled={!v.available}
+                          onClick={() => setSelectedLabel(v.label)}
                           className={`rounded-xl border px-3 py-2 text-center transition ${
-                            selectedKg === v.kg
+                            !v.available
+                              ? "cursor-not-allowed border-gray-100 text-gray-400"
+                              : selectedLabel === v.label
                               ? "border-brand-dark bg-brand-dark text-white"
                               : "border-gray-200 text-gray-900 hover:border-brand-accent"
                           }`}
@@ -105,10 +109,14 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
                           <span className="block text-sm font-semibold">{v.label}</span>
                           <span
                             className={`block text-xs ${
-                              selectedKg === v.kg ? "text-white/80" : "text-gray-500"
+                              !v.available
+                                ? "text-gray-400"
+                                : selectedLabel === v.label
+                                ? "text-white/80"
+                                : "text-gray-500"
                             }`}
                           >
-                            £{v.price.toFixed(2)}
+                            {v.available ? `£${v.price.toFixed(2)}` : "Out of stock"}
                           </span>
                         </button>
                       ))}
@@ -154,15 +162,15 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
 
                 <motion.button
                   type="button"
-                  whileTap={inStock ? { scale: 0.97 } : undefined}
+                  whileTap={canAdd ? { scale: 0.97 } : undefined}
                   onClick={handleAdd}
-                  disabled={!inStock}
+                  disabled={!canAdd}
                   className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold text-white transition ${
-                    inStock ? "bg-brand-dark md:hover:bg-brand" : "cursor-not-allowed bg-gray-300"
+                    canAdd ? "bg-brand-dark md:hover:bg-brand" : "cursor-not-allowed bg-gray-300"
                   }`}
                 >
                   <ShoppingCart size={18} aria-hidden="true" />
-                  {inStock ? "Add To Cart" : "Out of Stock"}
+                  {canAdd ? "Add To Cart" : "Out of Stock"}
                 </motion.button>
               </div>
             </div>

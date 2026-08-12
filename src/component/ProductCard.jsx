@@ -2,8 +2,13 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
 import ProductThumbnail from "./ProductThumbnail";
+import { getDefaultVariant, getDisplayPrice, isItemInStock } from "../utils/weightVariants";
 
 function ProductCard({ item, onAdd, onView, badge }) {
+  const { price, fromMultiple } = getDisplayPrice(item);
+  const defaultVariant = getDefaultVariant(item);
+  const outOfStock = !isItemInStock(item);
+
   return (
     <motion.article
       layout
@@ -39,16 +44,27 @@ function ProductCard({ item, onAdd, onView, badge }) {
         <h3 className="line-clamp-1 text-sm font-semibold text-gray-900 sm:text-base">{item.name}</h3>
         <p className="text-xs text-gray-500 sm:text-sm">{item.category}</p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-          <span className="text-base font-bold text-brand-dark sm:text-lg">£{item.price}</span>
+          {outOfStock ? (
+            <span className="text-xs font-semibold text-red-500">Out of Stock</span>
+          ) : (
+            <span className="text-base font-bold text-brand-dark sm:text-lg">
+              {fromMultiple && <span className="mr-1 text-xs font-medium text-gray-400">From</span>}
+              £{price.toFixed(2)}
+            </span>
+          )}
           <motion.button
             type="button"
-            whileTap={{ scale: 0.92 }}
+            whileTap={outOfStock ? undefined : { scale: 0.92 }}
+            disabled={outOfStock}
             onClick={(e) => {
               e.stopPropagation();
-              onAdd(item);
+              if (outOfStock) return;
+              onAdd(item, defaultVariant ? { price: defaultVariant.price, variantLabel: defaultVariant.label } : undefined);
             }}
             aria-label={`Add ${item.name} to cart`}
-            className="flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-brand-dark px-3 text-white transition md:hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            className={`flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
+              outOfStock ? "cursor-not-allowed bg-gray-300" : "bg-brand-dark md:hover:bg-brand"
+            }`}
           >
             <ShoppingCart size={18} aria-hidden="true" />
           </motion.button>
