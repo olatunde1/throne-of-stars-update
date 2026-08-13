@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 const FAQS = [
   { q: "What areas do you deliver to?", a: "We currently deliver across the local metro area, with same-week delivery slots available at checkout." },
-  { q: "What payment methods do you accept?", a: "We accept card payments and bank transfer. You can also arrange payment via WhatsApp for larger orders." },
+  { q: "What payment methods do you accept?", a: "We accept bank transfer and you can also arrange payment via WhatsApp for larger orders." },
   { q: "Can I change or cancel my order?", a: "Message us on WhatsApp as soon as possible and we'll update your order before it's packed." },
   { q: "Do you offer bulk or wholesale pricing?", a: "We do. Contact us on WhatsApp with your list and we'll send a custom quote." },
 ];
