@@ -25,14 +25,14 @@ export default function VisitorsCounter() {
 
     let cancelled = false;
 
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/day-${todayKey()}`)
+    fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/day-${todayKey()}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setToday(data.value);
       })
       .catch(() => {});
 
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/total`)
+    fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/total`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setTotal(data.value);
