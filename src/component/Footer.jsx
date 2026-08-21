@@ -1,5 +1,6 @@
 import { Facebook, Instagram, MapPin, Twitter, Youtube } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
+import VisitorsCounter from "./VisitorsCounter";
 
 const LINKS = [
   { label: "Home", href: "#home" },
@@ -18,6 +19,7 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer id="footer" className="scroll-mt-20 border-t border-gray-100 bg-white">
+      <VisitorsCounter />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           <div>
