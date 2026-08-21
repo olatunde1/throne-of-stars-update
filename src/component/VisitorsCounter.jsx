@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3 } from "lucide-react";
 
 const NAMESPACE = "throne-of-stars-groceries";
@@ -13,35 +13,24 @@ function todayKey() {
   return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
-let hasCountedThisSession = false;
-
 export default function VisitorsCounter() {
   const [today, setToday] = useState(null);
   const [total, setTotal] = useState(null);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (hasCountedThisSession) return;
-    hasCountedThisSession = true;
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
-    let cancelled = false;
-
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/day-${todayKey()}`)
+    fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/day-${todayKey()}`)
       .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setToday(data.value);
-      })
+      .then((data) => setToday(data.value))
       .catch(() => {});
 
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/total`)
+    fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/total`)
       .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setTotal(data.value);
-      })
+      .then((data) => setTotal(data.value))
       .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   return (
