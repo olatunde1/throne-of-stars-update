@@ -9,11 +9,17 @@ export default function useProducts() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("https://sheet.best/api/sheets/dddaa9f6-81c7-4786-9db7-c56e375a048d")
+    fetch("https://sheet.best/api/sheets/d0e14cd6-5210-4cfa-b9f4-6fd0d98f6d61")
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
-        setProducts(data.map((item) => ({ ...item, category: resolveCategory(item) })));
+        setProducts(
+          data.map((item, index) => ({
+            ...item,
+            id: item.id ?? `${item.name}-${index}`,
+            category: resolveCategory(item),
+          }))
+        );
         setLoading(false);
       })
       .catch((err) => {
