@@ -3,7 +3,7 @@ export const CATEGORIES = [
   "Fish and Seafood",
   "Meat",
   "Poultry",
-  "Cereal and Diary",
+  "Cereal and Dairy",
   "Grains",
   "Flours and Poundo",
   "Drinks",
@@ -11,6 +11,7 @@ export const CATEGORIES = [
   "Vegetables and Tubers",
   "Sweet and Snacks",
   "Skin and Haircare",
+  "Oils and vinegar",
 ];
 
 const KNOWN_CATEGORIES = CATEGORIES.filter((c) => c !== "All");
