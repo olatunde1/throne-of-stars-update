@@ -9,7 +9,7 @@ export default function useProducts() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("https://sheet.best/api/sheets/d0e14cd6-5210-4cfa-b9f4-6fd0d98f6d61")
+    fetch("https://sheet.best/api/sheets/7a4f7e8d-1f1d-483f-8e70-a6877a4e0f9d")
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
