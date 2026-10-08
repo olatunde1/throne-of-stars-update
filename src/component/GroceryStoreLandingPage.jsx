@@ -80,6 +80,7 @@ export default function GroceryStoreLandingPage() {
           name: product.name ?? product.title ?? "Unnamed item",
           price: price != null ? Number(price) : Number(product.price) || 0,
           qty,
+          image: product.image,
           category: product.category ?? null,
           variantLabel,
         },
