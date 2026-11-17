@@ -14,6 +14,8 @@ const allowedHosts = [
   "www.t throneofstar.com",
 ];
 
-if (!allowedHosts.includes(window.location.hostname)) {
+const currentHost = window.location.hostname;
+
+if (!allowedHosts.includes(currentHost)) {
   window.location.replace("https://throneofstar.com");
 }
