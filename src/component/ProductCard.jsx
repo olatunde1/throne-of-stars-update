@@ -1,12 +1,10 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart } from "lucide-react";
 import ProductThumbnail from "./ProductThumbnail";
-import { getDefaultVariant, getDisplayPrice, isItemInStock } from "../utils/weightVariants";
+import { getDisplayPrice, isItemInStock } from "../utils/weightVariants";
 
-function ProductCard({ item, onAdd, onView, badge }) {
+function ProductCard({ item, onView, badge }) {
   const { price, fromMultiple } = getDisplayPrice(item);
-  const defaultVariant = getDefaultVariant(item);
   const outOfStock = !isItemInStock(item);
 
   return (
@@ -43,7 +41,7 @@ function ProductCard({ item, onAdd, onView, badge }) {
       <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
         <h3 className="line-clamp-1 text-sm font-semibold text-gray-900 sm:text-base">{item.name}</h3>
         <p className="text-xs text-gray-500 sm:text-sm">{item.category}</p>
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+        <div className="mt-auto flex flex-col gap-2 pt-3">
           {outOfStock ? (
             <span className="text-xs font-semibold text-red-500">Out of Stock</span>
           ) : (
@@ -54,19 +52,15 @@ function ProductCard({ item, onAdd, onView, badge }) {
           )}
           <motion.button
             type="button"
-            whileTap={outOfStock ? undefined : { scale: 0.92 }}
-            disabled={outOfStock}
+            whileTap={{ scale: 0.97 }}
             onClick={(e) => {
               e.stopPropagation();
-              if (outOfStock) return;
-              onAdd(item, defaultVariant ? { price: defaultVariant.price, variantLabel: defaultVariant.label } : undefined);
+              onView?.(item);
             }}
-            aria-label={`Add ${item.name} to cart`}
-            className={`flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
-              outOfStock ? "cursor-not-allowed bg-gray-300" : "bg-brand-dark md:hover:bg-brand"
-            }`}
+            aria-label={`Select options for ${item.name}`}
+            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-dark px-3 text-sm font-semibold text-white transition hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
-            <ShoppingCart size={18} aria-hidden="true" />
+            Select Options
           </motion.button>
         </div>
       </div>
