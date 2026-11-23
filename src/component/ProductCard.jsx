@@ -26,7 +26,7 @@ function ProductCard({ item, onView, badge }) {
             }
           : undefined
       }
-      className={`flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow md:hover:shadow-lg ${
+      className={`flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100 transition-all duration-300 ease-out md:hover:-translate-y-1 md:hover:shadow-xl ${
         onView ? "cursor-pointer" : ""
       }`}
     >
@@ -52,13 +52,14 @@ function ProductCard({ item, onView, badge }) {
           )}
           <motion.button
             type="button"
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={(e) => {
               e.stopPropagation();
               onView?.(item);
             }}
             aria-label={`Select options for ${item.name}`}
-            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-dark px-3 text-sm font-semibold text-white transition hover:bg-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-dark px-3 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-brand hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
             Select Options
           </motion.button>
