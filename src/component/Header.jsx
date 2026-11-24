@@ -3,7 +3,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import Logo from "../assets/throne-of-stars-icon.png";
 import ProductThumbnail from "./ProductThumbnail";
-import { getDefaultVariant, getDisplayPrice, isItemInStock } from "../utils/weightVariants";
+import {
+  getDefaultVariant,
+  getDisplayPrice,
+  getItemStockQuantity,
+  isItemInStock,
+} from "../utils/weightVariants";
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -160,9 +165,14 @@ export default function Header({
                 ) : (
                   searchResults.map((item) => {
                     const defaultVariant = getDefaultVariant(item);
-                    const addOptions = defaultVariant
-                      ? { price: defaultVariant.price, variantLabel: defaultVariant.label }
-                      : undefined;
+                    const addOptions = {
+                      ...(defaultVariant
+                        ? { price: defaultVariant.price, variantLabel: defaultVariant.label }
+                        : {}),
+                      stockQuantity: defaultVariant
+                        ? defaultVariant.stockQuantity
+                        : getItemStockQuantity(item),
+                    };
                     const key = cartKey(item, defaultVariant?.label ?? null);
                     const qty = qtyInCart(item, cart, defaultVariant?.label ?? null);
                     const inStock = isItemInStock(item);
@@ -220,8 +230,12 @@ export default function Header({
                             <button
                               type="button"
                               onClick={() => onAddResult?.(item, addOptions)}
+                              disabled={
+                                defaultVariant?.stockQuantity != null &&
+                                qty >= defaultVariant.stockQuantity
+                              }
                               aria-label={`Increase quantity of ${item.name}`}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               +
                             </button>
@@ -229,12 +243,13 @@ export default function Header({
                         ) : (
                           <button
                             type="button"
+                            disabled={defaultVariant?.stockQuantity === 0}
                             onClick={(e) => {
                               e.stopPropagation();
                               onAddResult?.(item, addOptions);
                             }}
                             aria-label={`Add ${item.name} to cart`}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white transition hover:bg-brand"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white transition hover:bg-brand disabled:cursor-not-allowed disabled:bg-gray-300"
                           >
                             <ShoppingCart size={16} aria-hidden="true" />
                           </button>

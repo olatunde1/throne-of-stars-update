@@ -39,6 +39,7 @@
 
 import { useEffect, useState } from "react";
 import { resolveCategory } from "../utils/categories";
+import { groupWeightProducts } from "../utils/weightVariants";
 
 export default function useProducts() {
   const [products, setProducts] = useState([]);
@@ -59,13 +60,13 @@ export default function useProducts() {
       .then((data) => {
         if (cancelled) return;
 
-        setProducts(
-          data.map((item, index) => ({
-            ...item,
-            id: item.id ?? `${item.name}-${index}`,
-            category: resolveCategory(item),
-          }))
-        );
+        const normalizedProducts = data.map((item, index) => ({
+          ...item,
+          id: item.id ?? `${item.name}-${index}`,
+          category: resolveCategory(item),
+        }));
+
+        setProducts(groupWeightProducts(normalizedProducts));
 
         setLoading(false);
       })

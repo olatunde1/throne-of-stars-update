@@ -80,6 +80,7 @@ export default function CartDrawer({ open, onClose, cart, onUpdateQty, total }) 
                         <p className="truncate text-sm font-medium text-gray-900">{lineName(c)}</p>
                         <p className="text-xs text-gray-500">
                           £{c.price} × {c.qty}
+                          {c.stockQuantity != null && ` · ${c.stockQuantity} in stock`}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
@@ -95,8 +96,9 @@ export default function CartDrawer({ open, onClose, cart, onUpdateQty, total }) 
                         <button
                           type="button"
                           onClick={() => onUpdateQty(c.id, c.qty + 1)}
+                          disabled={c.stockQuantity != null && c.qty >= c.stockQuantity}
                           aria-label={`Increase quantity of ${c.name}`}
-                          className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           +
                         </button>

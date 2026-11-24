@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, X } from "lucide-react";
-import { computeWeightVariants, getDefaultVariant, isItemInStock } from "../utils/weightVariants";
+import {
+  computeWeightVariants,
+  getDefaultVariant,
+  getItemStockQuantity,
+  isItemInStock,
+} from "../utils/weightVariants";
 import ProductThumbnail from "./ProductThumbnail";
 
-export default function ProductDetailModal({ item, open, onClose, onAdd }) {
+export default function ProductDetailModal({ item, open, onClose, onAdd, cart = [] }) {
   const variants = item ? computeWeightVariants(item) : null;
   const defaultVariant = item ? getDefaultVariant(item) : null;
 
@@ -15,11 +20,24 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
     setSelectedLabel(defaultVariant?.label ?? null);
     setQty(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.id, item?.name]);
+  }, [item?.id, item?.name, open]);
 
   const inStock = item ? isItemInStock(item) : false;
   const selectedVariant = variants?.find((v) => v.label === selectedLabel) ?? null;
-  const canAdd = selectedVariant ? selectedVariant.available : inStock;
+  const hasWeightOptions = variants?.some((variant) =>
+    /^\d+(?:[.,]\d+)?\s*(?:kg|g)$/i.test(variant.label)
+  );
+  const inventoryQuantity = selectedVariant
+    ? selectedVariant.stockQuantity
+    : getItemStockQuantity(item);
+  const cartItemId = `${item?.id ?? item?.name}${selectedVariant ? `::${selectedVariant.label}` : ""}`;
+  const quantityInCart = cart.find((cartItem) => String(cartItem.id) === cartItemId)?.qty ?? 0;
+  const remainingQuantity =
+    inventoryQuantity == null ? Infinity : Math.max(0, inventoryQuantity - quantityInCart);
+  const canAdd =
+    (selectedVariant ? selectedVariant.available : inStock) &&
+    remainingQuantity > 0 &&
+    qty <= remainingQuantity;
   const unitPrice = selectedVariant ? selectedVariant.price : Number(item?.price) || 0;
   const totalPrice = (unitPrice * qty).toFixed(2);
 
@@ -29,6 +47,7 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
       qty,
       price: unitPrice,
       variantLabel: selectedVariant?.label ?? null,
+      stockQuantity: inventoryQuantity,
     });
   }
 
@@ -90,14 +109,20 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
 
                 {variants && (
                   <div>
-                    <p className="mb-2 text-sm font-semibold text-gray-900">Select size:</p>
+                    <p className="mb-2 text-sm font-semibold text-gray-900">
+                      {hasWeightOptions ? "Select weight:" : "Select size:"}
+                    </p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {variants.map((v) => (
                         <button
                           key={v.label}
                           type="button"
                           disabled={!v.available}
-                          onClick={() => setSelectedLabel(v.label)}
+                          onClick={() => {
+                            setSelectedLabel(v.label);
+                            setQty(1);
+                          }}
+                          aria-pressed={selectedLabel === v.label}
                           className={`rounded-xl border px-3 py-2 text-center transition ${
                             !v.available
                               ? "cursor-not-allowed border-gray-100 text-gray-400"
@@ -116,7 +141,11 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
                                 : "text-gray-500"
                             }`}
                           >
-                            {v.available ? `£${v.price.toFixed(2)}` : "Out of stock"}
+                            {v.available
+                              ? `£${v.price.toFixed(2)}${
+                                  v.stockQuantity == null ? "" : ` · ${v.stockQuantity} in stock`
+                                }`
+                              : "Out of stock"}
                           </span>
                         </button>
                       ))}
@@ -148,8 +177,9 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
                     <button
                       type="button"
                       onClick={() => setQty((q) => q + 1)}
+                      disabled={qty >= remainingQuantity}
                       aria-label="Increase quantity"
-                      className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       +
                     </button>
@@ -170,7 +200,11 @@ export default function ProductDetailModal({ item, open, onClose, onAdd }) {
                   }`}
                 >
                   <ShoppingCart size={18} aria-hidden="true" />
-                  {canAdd ? "Add To Cart" : "Out of Stock"}
+                  {canAdd
+                    ? "Add To Cart"
+                    : remainingQuantity === 0 && inventoryQuantity != null
+                    ? "Stock Limit Reached"
+                    : "Out of Stock"}
                 </motion.button>
               </div>
             </div>
