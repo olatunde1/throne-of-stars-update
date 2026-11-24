@@ -19,6 +19,7 @@ import CartDrawer from "./CartDrawer";
 import ProductDetailModal from "./ProductDetailModal";
 import FloatingWhatsApp from "./FloatingWhatsApp";
 import { CATEGORIES } from "../utils/categories";
+import { getItemStockQuantity, matchesProductQuery } from "../utils/weightVariants";
 
 const PAGE_SIZE = 12;
 
@@ -40,7 +41,7 @@ export default function GroceryStoreLandingPage() {
   const filtered = useMemo(() => {
     return products?.filter((p) => {
       const matchesCategory = category === "All" || p.category === category;
-      const matchesQuery = query === "" || p.name.toLowerCase().includes(query.toLowerCase());
+      const matchesQuery = matchesProductQuery(p, query);
       return matchesCategory && matchesQuery;
     });
   }, [products, query, category]);
@@ -61,28 +62,37 @@ export default function GroceryStoreLandingPage() {
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return (products ?? []).filter((p) => p.name.toLowerCase().includes(q)).slice(0, 6);
+    return (products ?? []).filter((p) => matchesProductQuery(p, q)).slice(0, 6);
   }, [products, query]);
 
   function addToCart(product, options = {}) {
     const { qty = 1, price, variantLabel = null } = options;
+    const stockQuantity =
+      options.stockQuantity !== undefined ? options.stockQuantity : getItemStockQuantity(product);
     const key = `${product.id ?? product.name}${variantLabel ? `::${variantLabel}` : ""}`;
 
     setCart((prev) => {
       const existing = prev.find((c) => String(c.id) === String(key));
       if (existing) {
-        return prev.map((c) => (String(c.id) === String(key) ? { ...c, qty: c.qty + qty } : c));
+        const maxQty = stockQuantity ?? existing.stockQuantity;
+        const nextQty = maxQty == null ? existing.qty + qty : Math.min(maxQty, existing.qty + qty);
+        return prev.map((c) =>
+          String(c.id) === String(key) ? { ...c, qty: nextQty, stockQuantity: maxQty } : c
+        );
       }
+      const safeQty = stockQuantity == null ? qty : Math.min(stockQuantity, qty);
+      if (safeQty <= 0) return prev;
       return [
         ...prev,
         {
           id: key,
           name: product.name ?? product.title ?? "Unnamed item",
           price: price != null ? Number(price) : Number(product.price) || 0,
-          qty,
+          qty: safeQty,
           image: product.image,
           category: product.category ?? null,
           variantLabel,
+          stockQuantity,
         },
       ];
     });
@@ -103,7 +113,19 @@ export default function GroceryStoreLandingPage() {
 
   function updateQty(id, qty) {
     setCart((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, qty: Math.max(0, qty) } : c)).filter((c) => c.qty > 0)
+      prev
+        .map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                qty: Math.min(
+                  c.stockQuantity == null ? Infinity : c.stockQuantity,
+                  Math.max(0, qty)
+                ),
+              }
+            : c
+        )
+        .filter((c) => c.qty > 0)
     );
   }
 
@@ -263,6 +285,7 @@ export default function GroceryStoreLandingPage() {
         open={showDetail}
         onClose={() => setShowDetail(false)}
         onAdd={handleAddFromDetail}
+        cart={cart}
       />
 
       <FloatingWhatsApp />
