@@ -198,6 +198,7 @@ export default function GroceryStoreLandingPage() {
               iconClassName="bg-orange-50 text-orange-500"
               badge="Hot"
               items={hotSelling}
+              onAdd={addToCart}
               onView={openProductDetail}
             />
             <ProductCarousel
@@ -207,6 +208,7 @@ export default function GroceryStoreLandingPage() {
               iconClassName="bg-purple-50 text-brand-accent"
               badge="New"
               items={newProducts}
+              onAdd={addToCart}
               onView={openProductDetail}
             />
           </>
@@ -253,6 +255,7 @@ export default function GroceryStoreLandingPage() {
                       <ProductCard
                         key={item.id ?? item.name}
                         item={item}
+                        onAdd={addToCart}
                         onView={openProductDetail}
                       />
                     ))}

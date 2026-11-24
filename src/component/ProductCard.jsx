@@ -1,10 +1,17 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { ShoppingCart } from "lucide-react";
 import ProductThumbnail from "./ProductThumbnail";
-import { getDisplayPrice, isItemInStock } from "../utils/weightVariants";
+import {
+  computeWeightVariants,
+  getDisplayPrice,
+  isItemInStock,
+} from "../utils/weightVariants";
 
-function ProductCard({ item, onView, badge }) {
+function ProductCard({ item, onAdd, onView, badge }) {
   const { price, fromMultiple } = getDisplayPrice(item);
+  const variants = computeWeightVariants(item);
+  const singleVariant = variants?.length === 1 ? variants[0] : null;
   const outOfStock = !isItemInStock(item);
 
   return (
@@ -41,7 +48,13 @@ function ProductCard({ item, onView, badge }) {
       <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
         <h3 className="line-clamp-1 text-sm font-semibold text-gray-900 sm:text-base">{item.name}</h3>
         <p className="text-xs text-gray-500 sm:text-sm">{item.category}</p>
-        <div className="mt-auto flex flex-col gap-2 pt-3">
+        <div
+          className={`mt-auto pt-3 ${
+            singleVariant
+              ? "flex items-center justify-between gap-2"
+              : "flex flex-col gap-2"
+          }`}
+        >
           {outOfStock ? (
             <span className="text-xs font-semibold text-red-500">Out of Stock</span>
           ) : (
@@ -50,19 +63,44 @@ function ProductCard({ item, onView, badge }) {
               £{price.toFixed(2)}
             </span>
           )}
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onView?.(item);
-            }}
-            aria-label={`Select options for ${item.name}`}
-            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-dark px-3 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-brand hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
-          >
-            Select Options
-          </motion.button>
+          {singleVariant ? (
+            <motion.button
+              type="button"
+              whileHover={singleVariant.available ? { scale: 1.08 } : undefined}
+              whileTap={singleVariant.available ? { scale: 0.94 } : undefined}
+              disabled={!singleVariant.available}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAdd?.(item, {
+                  price: singleVariant.price,
+                  variantLabel: singleVariant.label,
+                  stockQuantity: singleVariant.stockQuantity,
+                });
+              }}
+              aria-label={`Add ${item.name} (${singleVariant.label}) to cart`}
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
+                singleVariant.available
+                  ? "bg-brand-dark hover:bg-brand hover:shadow-md"
+                  : "cursor-not-allowed bg-gray-300"
+              }`}
+            >
+              <ShoppingCart size={18} aria-hidden="true" />
+            </motion.button>
+          ) : (
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onView?.(item);
+              }}
+              aria-label={`Select options for ${item.name}`}
+              className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-dark px-3 text-sm font-semibold text-white transition-colors duration-200 ease-out hover:bg-brand hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            >
+              Select Options
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.article>
